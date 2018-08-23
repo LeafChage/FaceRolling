@@ -12,40 +12,55 @@ namespace LeafChage
         [SerializeField] private Transform startPosition;
         [SerializeField] private UI ui;
 
-        private bool isJump = false;
+        private float time = 0;
+        private bool isFinish = false;
 
         void Start()
         {
             this.gameObject.transform.position = this.startPosition.position;
+            this.ui.StartText();
+            this.time = 0;
+            this.isFinish = false;
         }
 
         void Update()
         {
-            this.moveCamera();
-
-            if(this.isJump)
-            {
-                this.jumping();
+            if(!this.isFinish) {
+                this.time += Time.deltaTime;
+                Debug.Log(this.time);
+                this.ui.TimeText = (this.time / 60).ToString("00") + ":" + (this.time % 60).ToString("00") + ":" + ((this.time - (float)((int)this.time))*100).ToString("00");
             }
 
-            if(Input.GetKeyDown(KeyCode.J))
+            this.moveCamera();
+
+            if (Input.GetKey(KeyCode.J))
             {
-                this.rb.AddForce(Vector2.right * 100);
+                this.rb.AddForce(Vector2.right * 10);
                 this.rb.MoveRotation(10);
             }
 
-            if (Input.GetKeyDown(KeyCode.F))
+            if (Input.GetKey(KeyCode.F))
             {
-                this.rb.AddForce(Vector2.left * 100);
+                this.rb.AddForce(Vector2.left * 10);
                 this.rb.MoveRotation(-10);
             }
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                this.rb.AddForce(Vector2.up * 500);
-                this.isJump = true;
+                if(!this.isJump) {
+                    this.rb.AddForce(Vector2.up * 400);
+                    StartCoroutine(jumpCoroutine());
+                }
+            }
+
+            if(this.rb.velocity.x >= this.maxSpeed) {
+                var speed = this.rb.velocity;
+                speed.x = this.maxSpeed;
+                this.rb.velocity = speed;
             }
         }
+
+        private float maxSpeed = 10;
 
         private void moveCamera()
         {
@@ -56,23 +71,36 @@ namespace LeafChage
             this.camera.transform.position = camera;
         }
 
-        private Vector3 prePosition;
-        private void jumping()
+        private bool isJump = false;
+        private IEnumerator jumpCoroutine()
         {
-            if(prePosition.y <= this.gameObject.transform.position.y)
-            {
-                this.isJump = false;
-            }
-            else
-            {
-                prePosition = this.gameObject.transform.position;
-            }
+            this.isJump = true;
+            yield return new WaitForSeconds(1.5f);
+            this.isJump = false;
         }
 
-        private void OnCollisionEnter(Collision collision)
+        private void end(){
+            this.isFinish = true;
+            this.ui.GoalText(() => {
+                    this.Start();
+            });
+        }
+
+        private void OnCollisionEnter2D(Collision2D collision)
         {
-            if(collision.gameObject.tag == Const.Tag.FALL)
+            switch (collision.gameObject.tag)
             {
+                case Const.Tag.FALL:
+                    this.Start();
+                    break;
+                case Const.Tag.GOAL:
+                    this.end();
+                    break;
+                case Const.Tag.DAMAGE:
+                    this.Start();
+                    break;
+                default:
+                    break;
             }
         }
     }

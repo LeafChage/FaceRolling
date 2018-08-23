@@ -12,14 +12,25 @@ namespace LeafChage
         [SerializeField] private Transform startPosition;
         [SerializeField] private UI ui;
 
+        private float time = 0;
+        private bool isFinish = false;
+
         void Start()
         {
             this.gameObject.transform.position = this.startPosition.position;
             this.ui.StartText();
+            this.time = 0;
+            this.isFinish = false;
         }
 
         void Update()
         {
+            if(!this.isFinish) {
+                this.time += Time.deltaTime;
+                Debug.Log(this.time);
+                this.ui.TimeText = (this.time / 60).ToString("00") + ":" + (this.time % 60).ToString("00") + ":" + ((this.time - (float)((int)this.time))*100).ToString("00");
+            }
+
             this.moveCamera();
 
             if (Input.GetKey(KeyCode.J))
@@ -61,7 +72,7 @@ namespace LeafChage
         }
 
         private bool isJump = false;
-        private IEnumerator jumpCoroutine() 
+        private IEnumerator jumpCoroutine()
         {
             this.isJump = true;
             yield return new WaitForSeconds(1.5f);
@@ -69,8 +80,9 @@ namespace LeafChage
         }
 
         private void end(){
+            this.isFinish = true;
             this.ui.GoalText(() => {
-                this.Start();
+                    this.Start();
             });
         }
 

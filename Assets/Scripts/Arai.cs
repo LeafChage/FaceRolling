@@ -41,7 +41,15 @@ namespace LeafChage
                     StartCoroutine(jumpCoroutine());
                 }
             }
+
+            if(this.rb.velocity.x >= this.maxSpeed) {
+                var speed = this.rb.velocity;
+                speed.x = this.maxSpeed;
+                this.rb.velocity = speed;
+            }
         }
+
+        private float maxSpeed = 10;
 
         private void moveCamera()
         {
@@ -56,7 +64,7 @@ namespace LeafChage
         private IEnumerator jumpCoroutine() 
         {
             this.isJump = true;
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(1.5f);
             this.isJump = false;
         }
 

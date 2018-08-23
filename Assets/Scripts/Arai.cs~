@@ -1,0 +1,79 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+namespace LeafChage
+{
+    public class Arai : MonoBehaviour
+    {
+        [SerializeField] private Rigidbody2D rb;
+        [SerializeField] private GameObject camera;
+        [SerializeField] private Transform startPosition;
+        [SerializeField] private UI ui;
+
+        private bool isJump = false;
+
+        void Start()
+        {
+            this.gameObject.transform.position = this.startPosition.position;
+        }
+
+        void Update()
+        {
+            this.moveCamera();
+
+            if(this.isJump)
+            {
+                this.jumping();
+            }
+
+            if(Input.GetKeyDown(KeyCode.J))
+            {
+                this.rb.AddForce(Vector2.right * 100);
+                this.rb.MoveRotation(10);
+            }
+
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                this.rb.AddForce(Vector2.left * 100);
+                this.rb.MoveRotation(-10);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                this.rb.AddForce(Vector2.up * 500);
+                this.isJump = true;
+            }
+        }
+
+        private void moveCamera()
+        {
+            var arai = this.gameObject.transform.position;
+            var camera = this.camera.transform.position;
+            camera.x = arai.x;
+            camera.y = arai.y;
+            this.camera.transform.position = camera;
+        }
+
+        private Vector3 prePosition;
+        private void jumping()
+        {
+            if(prePosition.y <= this.gameObject.transform.position.y)
+            {
+                this.isJump = false;
+            }
+            else
+            {
+                prePosition = this.gameObject.transform.position;
+            }
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if(collision.gameObject.tag == Const.Tag.FALL)
+            {
+            }
+        }
+    }
+}

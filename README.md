@@ -1,5 +1,6 @@
 # FaceRolling
 ２時間でつくったくそげーです
+遊んでください
 
 # HowToUse
 * PCで遊んでください！
